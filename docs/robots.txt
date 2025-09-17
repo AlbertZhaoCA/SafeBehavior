@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://trust4ai.org/safebehavior
+
+# Sitemaps
+Sitemap: https://trust4ai.org/safebehavior/sitemap.xml
