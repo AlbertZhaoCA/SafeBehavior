@@ -1,0 +1,15 @@
+torch
+transformers
+datasets
+accelerate
+peft
+openai
+aiohttp
+tenacity
+numpy
+pandas
+python-dotenv
+pydantic
+tqdm
+tabulate
+typing-extensions
