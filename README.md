@@ -1,10 +1,89 @@
-# SafeBehavior: Simulating Human-Like Multistage
-Reasoning to Mitigate Jailbreak Attacks in Large
-Language Models
+# SafeBehavior: Simulating Human-Like Multistage Reasoning to Mitigate Jailbreak Attacks in Large Language Models
 
-A sophisticated defense framework for Large Language Models (LLMs) featuring the SafeBehavior multi-stage defense mechanism. This project focuses on developing and implementing robust safety defenses against adversarial attacks and jailbreaking attempts.
+<div align="center">
+  <img src="assets/logo.png" alt="SafeBehavior Logo" width="300"/>
+</div>
 
-## 🚀 Core Features
+
+A Novel Hierarchical Jailbreak Defense Framework via Human-Like Multistage Reasoning
+
+## 🚀 Quick Start
+
+### 1. Clone and Setup
+```bash
+git clone https://github.com/AlbertZhaoCA/SafeBehavior
+cd SafeBehavior
+pip install -r requirements.txt
+```
+
+### 2. Environment Configuration
+Create a `.env` file in the project root:
+```bash
+# Copy the example configuration and edit it
+cp .env.example .env
+```
+
+Then edit .env as needed:
+```bash
+# API Configuration
+ENDPOINT_URL=http://localhost:8000/v1
+DEPLOYMENT_NAME=Qwen/Qwen2.5-7B-Instruct # only when you use Azure
+LLM_API_KEY=your_api_key_here
+API_VERSION=2024-02-15-preview
+
+# Evaluation Model Settings
+EVALUATION_MODEL=Qwen/Qwen2.5-7B-Instruct 
+EVALUATION_MODEL_ENDPOINT=http://localhost:8000/v1/evaluate
+EVALUATION_MODEL_KEY=your_evaluation_key
+```
+｜ Environment variables have lower priority than command-line arguments.
+
+### 3. Data Curation
+
+SafeBehavior framework provides flexible data loading and processing capabilities for various attack and evaluation scenarios.
+
+#### Supported Data Sources
+
+**CSV Files**
+```csv
+prompt,goal,category
+"How to make a bomb?","Create explosive instructions","harmful"
+"Write a poem","Creative writing task","benign"
+```
+
+**Attack-Specific Formats**
+Different attackers require specific data formats:
+
+| Attacker | Expected Format | Key Field |
+|----------|----------------|-----------|
+| `gcg` | CSV with prompt column | `prompt` |
+| `deepinception` | CSV with prompt column | `prompt` |
+| `ifsj` | CSV with prompt column | `prompt` |
+| `pap` | CSV with prompt column | `prompt` |
+| `bypass` | CSV with goal column | `goal` |
+| `benign` | CSV with Goal column | `Goal` |
+
+#### Data Processing Pipeline
+
+The framework uses `helpers/dataset.py` to process attack-specific datasets, you can extend this to handle custom attack datasets. (use different logic)
+
+| For false positive rate (FPR) testing, provide benign borderline prompts.
+
+### 4. Run SafeBehavior Defense
+```bash
+python evaluate.py \
+--model Qwen/Qwen2.5-7B-Instruct \
+--attack_dataset data/gcg/qwen.csv \
+--evaluate_model_type remote \
+--defender safe_behavior \
+--attacker gcg
+--model_type local
+--evaluate_model_type local 
+```
+｜We highly recommend using vLLM as the inference engine with both `--evaluate_model_type` and `--model_type` set to `remote`.
+
+
+## 🎯 Overview
 
 ### SafeBehavior Defense (Primary Focus)
 The flagship **SafeBehavior** defense mechanism implements a sophisticated three-stage approach:
@@ -26,10 +105,10 @@ The flagship **SafeBehavior** defense mechanism implements a sophisticated three
 
 
 ### Supporting Defense Mechanisms
-- **Safe Decoding**: LoRA-based safe generation steering
-- **PPL Calculator**: Perplexity-based harmful content detection  
-- **Self Examination**: Self-reflective harmful content filtering
-- **Paraphrase Defense**: Input transformation for robustness
+- **SafeDecoding**: LoRA-based safe generation steering
+- **PPL**: Perplexity-based harmful content detection  
+- **Self-Examination**: Self-reflective harmful content filtering
+- **Paraphrase**: Input transformation for robustness
 - **Intention Analysis**: Two-stage intention understanding and content generation
 - **Retokenization**: BPE-based input preprocessing
 
@@ -38,75 +117,16 @@ The flagship **SafeBehavior** defense mechanism implements a sophisticated three
 - **Safety Assessment**: Automated evaluation of defense effectiveness
 - **Performance Metrics**: Comprehensive safety and utility measurement
 
-## 📦 Installation
-
-### Prerequisites
-- Python 3.10+
-- CUDA-capable GPU (recommended)
-
-
-### Setup
+#### Basic SafeBehavior Testing Example
 ```bash
-# Clone the repository
-git clone <repository-url>
-cd sb
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Set up environment variables
-cp .env.example .env
-# Edit .env with your API keys and endpoints
-```
-
-### Environment Configuration
-Create a `.env` file with the following variables:
-```bash
-# API Configuration
-ENDPOINT_URL=http://localhost:8000/v1
-DEPLOYMENT_NAME=Qwen/Qwen2.5-7B-Instruct
-LLM_API_KEY=your_api_key_here
-API_VERSION=2024-02-15-preview
-
-# Evaluation Model Settings
-EVALUATION_MODEL=Qwen/Qwen2.5-7B-Instruct
-EVALUATION_MODEL_ENDPOINT=http://localhost:8000/v1/evaluate
-EVALUATION_MODEL_KEY=your_evaluation_key
-```
-
-## 🔧 Usage
-
-### SafeBehavior Defense (Primary Usage)
-```bash
-# Deploy SafeBehavior defense
 python evaluate.py \
-    --model "Qwen/Qwen2.5-7B-Instruct" \
-    --defender "safe_behavior" \
-    --mode "jailbreak"
+--model Qwen/Qwen2.5-7B-Instruct \
+--attack_dataset data/gcg/qwen.csv \
+--evaluate_model_type remote \
+--defender safe_behavior \
+--attacker gcg
 ```
 
-### Testing Defense Robustness
-```bash
-# Test SafeBehavior against various attacks
-python evaluate.py \
-    --model "Qwen/Qwen2.5-7B-Instruct" \
-    --defender "safe_behavior" \
-    --attacker "gcg" \
-    --dataset "data/advbench/harmful_behaviors.csv"
-
-# Compare with other defenses
-python evaluate.py \
-    --defender "safe_behavior" \
-    --attacker "deepinception"
-```
-
-### Supported Parameters
-- `--model`: Target model for evaluation
-- `--model_type`: Model deployment type (`local`, `remote`)
-- `--defender`: Defense mechanism to use
-- `--attacker`: Attack method to evaluate
-- `--dataset`: Path to evaluation dataset
-- `--mode`: Evaluation mode (`jailbreak`, `refusal`)
 
 ### Available Defenders
 - `safe_behavior`: **Primary** - Advanced multi-stage behavior analysis
@@ -117,12 +137,6 @@ python evaluate.py \
 - `ia`: Intention analysis
 - `retokenization`: BPE preprocessing
 - `vanilla`: No defense (baseline for comparison)
-
-### Attack Simulation (for testing)
-- `gcg`: Greedy Coordinate Gradient
-- `deepinception`: DeepInception attacks
-- `ifsj`: Intent-based jailbreaking
-- `sts`: Multi-turn strategic attacks
 
 ## 🏗️ Architecture
 
@@ -143,141 +157,69 @@ safebehavior/
 └── config.py             # Configuration management
 ```
 
-### Core Components
+# Implement Your Own Defender
 
-**LLM Engine**: Unified interface supporting:
-- Local models (Transformers)
-- Remote APIs (OpenAI, Azure, Aliyun)
-- VLLM deployments
-- Ollama integration
+The SafeBehavior framework provides a flexible plugin system for implementing custom defense mechanisms. Follow this guide to create your own defender.
 
-**Defense Registry**: Plugin system for integrating new safety mechanisms
-**SafeBehavior Core**: Advanced multi-stage defense implementation
-**Evaluation Pipeline**: Tools for testing and validating defense effectiveness
+## 🛠️ Basic Defender Structure
 
-## 📊 Dataset Format
+### 1. Create Your Defender Class
 
-### Attack Datasets
-```csv
-prompt,attack_prompt,category
-"Original prompt","Adversarial version","harm_category"
-```
+Create a new file in `libs/defenders/your_defender.py`:
 
-### Evaluation Results
-```json
-{
-  "metadata": {
-    "model": "model_name",
-    "defender": "defense_type",
-    "attacker": "attack_type"
-  },
-  "results": [
-    {
-      "prompt": "test_prompt",
-      "response": "model_response",
-      "jailbreak_success": true,
-      "harmful": true,
-      "severity": 4
-    }
-  ]
-}
-```
-
-## 🔬 Research Applications
-
-This framework supports research in:
-- **AI Safety Defense**: Developing and refining the SafeBehavior mechanism
-- **Defense Evaluation**: Testing safety mechanism effectiveness
-- **Safety Research**: Creating new defensive approaches for LLMs
-- **Robustness Testing**: Validating defense performance against adversarial inputs
-
-## 🛡️ Supported Models
-
-### Local Models
-- Qwen series (Qwen2.5-7B-Instruct, etc.)
-- Llama family (Meta-Llama-3-8B-Instruct, etc.)
-- Mistral models (Mistral-7B-Instruct-v0.3, etc.)
-- Custom fine-tuned models
-
-### Remote APIs
-- OpenAI (GPT-3.5, GPT-4, etc.)
-- Azure OpenAI
-- Aliyun DashScope
-- Custom API endpoints
-
-## 🔍 Example Workflows
-
-### 1. Deploying SafeBehavior Defense
-```bash
-# Test SafeBehavior against various attack types
-python evaluate.py --defender safe_behavior --attacker gcg
-python evaluate.py --defender safe_behavior --attacker deepinception
-python evaluate.py --defender safe_behavior --attacker ifsj
-```
-
-### 2. Defense Performance Analysis
-```bash
-# Compare SafeBehavior with other defense mechanisms
-python evaluate.py --defender safe_behavior --exp performance_test
-python evaluate.py --defender ppl_calculator --exp performance_test
-python evaluate.py --defender safe_decoding --exp performance_test
-```
-
-### 3. Custom SafeBehavior Configuration
 ```python
-from libs.defenders.safe_behavior import SafeBehaviorDefender
+from .base import BaseDefender
+from ..llm_engine.llm import LLM
+from .registry import register_defender
 
-# Initialize with custom parameters
-defender = SafeBehaviorDefender(
-    model="Qwen/Qwen2.5-7B-Instruct",
-    type="local",
-    tau=0.1  # Adjust threshold for sensitivity
-)
-
-response = defender.run("Potentially harmful query")
+@register_defender("your_defender_name")
+class YourDefender(BaseDefender):
+    def __init__(self, model, type="local", system_prompt=None, **kwargs):
+        """
+        Initialize your defender.
+        Args:
+            model (str): Model name to use
+            type (str): Model type ("local" or "remote")
+            system_prompt (str): Custom system prompt
+            **kwargs: Additional parameters
+        """
+        self.llm = LLM(
+            model=model, 
+            type=type, 
+            system_prompt=system_prompt or "You are a helpful and safe AI assistant.",
+            **kwargs
+        )
+        pass
+        
+    def run(self, prompts: str) -> str:
+        """
+        Implement your defense logic here.
+        Args:
+            prompts (str): Input prompt to defend against
+        Returns:
+            str: Safe response or modified prompt
+        """
+        pass
 ```
 
-## 📈 Results and Analysis
+### 2. Register Your Defender
 
-Results focus on defense performance metrics including:
-- Defense success rates against various attack types
-- Response quality and utility preservation
-- Safety compliance scores
-- Computational efficiency metrics
+Add your defender to `libs/defenders/__init__.py`:
 
-Use the analysis tools in `helpers/statistics.py` for defense performance evaluation and comparison.
+```python
+from libs.defenders.your_defender import YourDefender
 
-## 🤝 Contributing
+__all__ = [
+    # ... existing defenders
+    "YourDefender"
+]
+```
 
-We welcome contributions! Please:
-1. Fork the repository
-2. Create a feature branch
-3. Add tests for new functionality
-4. Submit a pull request
-
-### Enhancing SafeBehavior
-1. Implement improvements in `libs/defenders/safe_behavior.py`
-2. Modify the multi-stage defense logic
-3. Add new detection mechanisms or refinement strategies
-4. Test against various attack scenarios
-
-### Adding New Defense Mechanisms
-1. Implement the defense in `libs/defenders/`
-2. Use the `@register_defender` decorator
-3. Follow the `BaseDefender` interface
-4. Add documentation and tests
 
 ## 📄 License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-## 🙏 Acknowledgments
-
-This framework builds upon and adapts code from:
-- [SafeDecoding](https://github.com/uw-nsl/SafeDecoding/)
-- [xJailbreak](https://github.com/Aegis1863/xJailbreak/)
-- [BPE-Dropout](https://github.com/VProv/BPE-Dropout/)
-- [lmppl](https://github.com/asahi417/lmppl/)
 
 ## 📞 Contact
 
@@ -286,3 +228,12 @@ For questions, issues, or collaboration opportunities, please open an issue on G
 ---
 
 **⚠️ Disclaimer**: This SafeBehavior framework is designed for AI safety research and defense development. Users are responsible for ensuring ethical use and compliance with applicable laws and regulations when deploying safety mechanisms in production systems.
+
+
+## 📄 Citation
+If you use SafeBehavior, please cite our paper:
+
+```bibtex
+@article{,
+}
+```

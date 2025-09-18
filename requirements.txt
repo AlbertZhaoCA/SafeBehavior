@@ -13,3 +13,4 @@ pydantic
 tqdm
 tabulate
 typing-extensions
+vllm

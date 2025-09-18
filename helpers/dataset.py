@@ -29,7 +29,7 @@ def get_attack_prompts(dataset:str,split:str,attacker:str):
         attack_prompts = []
         for prompt in attack_dataset:
             if isinstance(prompt, dict):
-                prompt = [prompt['attack_prompt']]
+                prompt = [prompt['prompt']]
             attack_prompts.append(prompt)
     elif attacker == "pap":
         attack_dataset = get_dataset(dataset, type="csv", split="train")
