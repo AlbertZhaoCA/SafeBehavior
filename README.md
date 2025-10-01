@@ -2,10 +2,22 @@
 
 <div align="center">
   <img src="assets/logo.png" alt="SafeBehavior Logo" width="300"/>
+  
+  <p align="center">
+    <a href="https://safebehavior.trust4ai.org">
+      <img src="https://img.shields.io/badge/🌐_Homepage-safebehavior.trust4ai.org-blue?style=for-the-badge" alt="Homepage">
+    </a>
+    <a href="https://arxiv.org/abs/2509.26345">
+      <img src="https://img.shields.io/badge/📄_Paper-arXiv-red?style=for-the-badge" alt="Paper">
+    </a>
+  </p>
 </div>
 
-
 A Novel Hierarchical Jailbreak Defense Framework via Human-Like Multistage Reasoning
+
+---
+
+**🌐 Project Homepage**: [safebehavior.trust4ai.org](https://safebehavior.trust4ai.org)
 
 ## 🚀 Quick Start
 
