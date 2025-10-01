@@ -234,6 +234,13 @@ For questions, issues, or collaboration opportunities, please open an issue on G
 If you use SafeBehavior, please cite our paper:
 
 ```bibtex
-@article{,
+@misc{zhao2025safebehaviorsimulatinghumanlikemultistage,
+      title={SafeBehavior: Simulating Human-Like Multistage Reasoning to Mitigate Jailbreak Attacks in Large Language Models}, 
+      author={Qinjian Zhao and Jiaqi Wang and Zhiqiang Gao and Zhihao Dou and Belal Abuhaija and Kaizhu Huang},
+      year={2025},
+      eprint={2509.26345},
+      archivePrefix={arXiv},
+      primaryClass={cs.AI},
+      url={https://arxiv.org/abs/2509.26345}, 
 }
 ```
